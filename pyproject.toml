@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inter-iit-meeting-assistant"
+version = "0.1.0"
+description = "Evidence-grounded AI meeting assistant with auditable transcripts and source playback"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+web = [
+    "fastapi==0.142.2",
+    "starlette==1.7.0",
+    "pydantic==2.13.5",
+    "uvicorn==0.54.0",
+    "python-multipart==0.0.32",
+]
+web-test = ["httpx==0.28.1"]
+
+grounding = [
+    "rapidfuzz==3.14.6",
+    "jellyfish==1.2.1",
+    "transformers==5.19.0",
+    "torch==2.8.0",
+    "numpy==2.5.3",
+    "huggingface-hub==1.33.0",
+]
+diarization = [
+    "pyannote.audio==4.0.7",
+    "torch==2.8.0",
+    "torchaudio==2.8.0",
+    "torchcodec==0.7.0",
+    "huggingface-hub==1.33.0",
+]
+
+[project.scripts]
+meeting-audio = "meeting_assistant.audio.__main__:main"
+meeting-assistant = "meeting_assistant.__main__:main"
+meeting-transcribe = "meeting_assistant.asr.__main__:main"
+meeting-diarize = "meeting_assistant.diarization.__main__:main"
+meeting-ground = "meeting_assistant.grounding.__main__:main"
+meeting-refine = "meeting_assistant.refinement.__main__:main"
+meeting-intelligence = "meeting_assistant.intelligence.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"meeting_assistant.grounding" = ["data/glossary/*.jsonl"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

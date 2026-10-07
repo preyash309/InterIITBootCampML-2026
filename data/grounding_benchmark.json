@@ -1,0 +1,39 @@
+{
+  "origin": "Original controlled terminology-retrieval cases authored for Phase IV. Synthetic spans, not an ASR accuracy dataset; no transcript corrections are applied.",
+  "positives": [
+    {"span":"cue drant","context":"We index embeddings in a vector database for nearest neighbor retrieval.","expected":"Qdrant"},
+    {"span":"pie torch","context":"Train the neural network with automatic differentiation and tensor operations.","expected":"PyTorch"},
+    {"span":"hugging face","context":"Download pretrained models and tokenizers from the model hub.","expected":"Hugging Face"},
+    {"span":"cube net ease","context":"Deploy containers with pods and services in the cluster.","expected":"Kubernetes"},
+    {"span":"see you da","context":"GPU kernels accelerate parallel tensor computation on NVIDIA hardware.","expected":"CUDA"},
+    {"span":"real n v p","context":"The normalizing flow uses invertible affine coupling layers.","expected":"RealNVP"},
+    {"span":"variational auto encoder","context":"Train a latent generative model with the evidence lower bound.","expected":"Variational autoencoder"},
+    {"span":"navier stokes","context":"Solve the viscous fluid momentum equations with pressure and body forces.","expected":"Navier–Stokes equations"},
+    {"span":"newton rafson","context":"Use the derivative to iteratively solve the nonlinear equation for its root.","expected":"Newton–Raphson method"},
+    {"span":"ten sir flow","context":"Build tensor graphs and train the neural network model.","expected":"TensorFlow"},
+    {"span":"lang muir isotherm","context":"The adsorption model relates equilibrium surface coverage to pressure.","expected":"Langmuir isotherm"},
+    {"span":"raynolds number","context":"Estimate whether the pipe flow is laminar or turbulent.","expected":"Reynolds number"},
+    {"span":"nusselt number","context":"Estimate the convective heat transfer coefficient relative to conduction.","expected":"Nusselt number"},
+    {"span":"continous stirred tank reactor","context":"We assume a well-mixed chemical reactor at steady state.","expected":"CSTR"},
+    {"span":"plug flow reactor","context":"Estimate conversion along an ideal tubular chemical reactor.","expected":"PFR"},
+    {"span":"ee bit da","context":"Report earnings before interest, taxes, depreciation and amortization.","expected":"EBITDA"},
+    {"span":"annual recurring revenue","context":"The subscription business reports predictable revenue from annual contracts.","expected":"ARR"},
+    {"span":"customer acquisition cost","context":"Compare marketing spending per new customer to lifetime value.","expected":"CAC"},
+    {"span":"singular value decomposition","context":"Factor the matrix into orthogonal singular vectors and a diagonal matrix.","expected":"SVD"},
+    {"span":"bais theorem","context":"Update the prior with the likelihood to compute the posterior probability.","expected":"Bayes' theorem"},
+    {"span":"kubernettes","context":"Schedule containers on pods using deployments in a cluster.","expected":"Kubernetes"},
+    {"span":"postgress q l","context":"The relational database supports transactions and SQL queries.","expected":"PostgreSQL"},
+    {"span":"elastic search","context":"Use an inverted index for full-text retrieval and search analytics.","expected":"Elasticsearch"},
+    {"span":"pytorch","context":"The machine learning framework trains neural networks using tensors.","expected":"PyTorch"}
+  ],
+  "negatives": [
+    {"span":"quadrant","context":"Plot the point in the upper right quadrant of the Cartesian plane.","forbidden":["Qdrant"]},
+    {"span":"react","context":"Please react calmly when someone gives personal feedback.","forbidden":["React"]},
+    {"span":"attention","context":"Please pay attention while the visitor explains the lunch arrangements.","forbidden":["FlashAttention","Attention mechanism"]},
+    {"span":"transformer","context":"A transformer steps down the alternating voltage in the power supply.","forbidden":["Transformers","Transformer architecture"]},
+    {"span":"15 percent","context":"The agreed discount remains 15 percent.","forbidden":["FP16","FP8"]},
+    {"span":"not approved","context":"The proposal is not approved.","forbidden":["Approval workflow"]},
+    {"span":"Friday","context":"The deadline is Friday, not Monday.","forbidden":["Fivetran"]},
+    {"span":"thanks","context":"Thanks for joining this short meeting.","forbidden":["TensorFlow"]}
+  ]
+}
