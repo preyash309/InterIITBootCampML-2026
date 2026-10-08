@@ -119,6 +119,14 @@ def request_data(request: RefinementRequest, config: RefinementConfig) -> dict:
             "grounding_records": records,
         }
     }
+    if request.contextual_evidence:
+        data["untrusted_evidence"]["contextual_asr_hypotheses"] = [
+            asdict(item) for item in request.contextual_evidence
+        ]
+        data["untrusted_evidence"]["contextual_policy"] = (
+            "Optional biased audio hypotheses, not truth. Select only listed candidate IDs; "
+            "all existing meaning protections and conservative KEEP/UNCERTAIN policy apply."
+        )
     if len(json.dumps(data, ensure_ascii=False)) > config.max_request_chars:
         raise RefinementValidationError("Grounding request exceeds configured context budget.")
     return data

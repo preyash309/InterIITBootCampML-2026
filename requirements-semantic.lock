@@ -1,0 +1,5 @@
+# Isolated .venv-semantic overlay; reuses the main environment's validated Torch.
+# Model/runtime source pinned separately by setup_semantic_model.py.
+transformers==5.0.0
+tokenizers==0.22.2
+typer-slim==0.24.0

@@ -25,3 +25,11 @@ perfect recognition or human-meeting benchmark accuracy.
 
 See [browser validation](../phase7-validation.md) and
 [UI validation](../ui-polish-validation.md) for the measured run and interactions.
+
+The five additional JPEGs under `phase11/` show the same safe recording's matching
+saved context, independent speaker comparison and experimental Julia observations,
+inspected on 2026-10-08. They show reliability Overview, transcript badges, the
+speaker-detail evidence drawer, an honest weak-result Evolution view, and Review.
+They were read from saved outputs without new inference. See
+[Phase XI validation](../phase11-validation.md) for source binding, responsive checks
+and the experimental-result limitations. No successful semantic chain was fabricated.

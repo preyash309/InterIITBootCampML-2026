@@ -32,6 +32,13 @@ from meeting_assistant.refinement.models import RefinedTranscript
 from meeting_assistant.refinement.serialization import refined_from_json
 
 from .config import WebConfig
+from .diagnostic_schemas import (
+    ContextualASRResult,
+    SemanticResult,
+    Sidecar,
+    SpeakerReliabilityResult,
+)
+from .diagnostics import DiagnosticReader
 from .errors import WebError
 from .jobs import JobWorker
 from .locking import server_lock
@@ -266,6 +273,28 @@ def create_app(config=None, *, runner=None, values=None):
 
     def load(identifier, kind, parser):
         return parser(store.artifact(identifier, kind).read_text(encoding="utf-8"))
+
+    @app.get(
+        "/api/meetings/{identifier}/contextual-asr", response_model=Sidecar[ContextualASRResult]
+    )
+    def contextual_asr(identifier: str):
+        completed(identifier)
+        return DiagnosticReader(store, identifier).get("contextual_asr")
+
+    @app.get(
+        "/api/meetings/{identifier}/speaker-reliability",
+        response_model=Sidecar[SpeakerReliabilityResult],
+    )
+    def speaker_reliability(identifier: str):
+        completed(identifier)
+        return DiagnosticReader(store, identifier).get("speaker_reliability")
+
+    @app.get(
+        "/api/meetings/{identifier}/semantic-reasoning", response_model=Sidecar[SemanticResult]
+    )
+    def semantic_reasoning(identifier: str):
+        completed(identifier)
+        return DiagnosticReader(store, identifier).get("semantic_reasoning")
 
     @app.get("/api/meetings/{identifier}/record", response_model=MeetingRecord)
     def record(identifier: str):

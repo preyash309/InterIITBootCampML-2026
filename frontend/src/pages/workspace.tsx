@@ -7,6 +7,17 @@ import {
   UsersRound,
 } from "lucide-react";
 import { api } from "../api";
+import {
+  deriveReview,
+  emptyDiagnostics,
+  pending,
+  type Diagnostics,
+} from "../diagnostics";
+import {
+  EvolutionView,
+  MeetingReliability,
+  ReviewView,
+} from "../components/trust";
 import type { Download, Job, Raw, Record, Refined } from "../types";
 import { activeUtterance, useAudioPlayback } from "../hooks/useAudioPlayback";
 import {
@@ -39,6 +50,8 @@ const views = [
   "Minutes",
   "Decisions",
   "Action Items",
+  "Decision Evolution",
+  "Review",
 ];
 export function Workspace({ id, job }: { id: string; job: Job }) {
   const [data, setData] = useState<{
@@ -55,6 +68,40 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
   const requestId = useRef(0),
     trigger = useRef<HTMLElement | null>(null);
   const audio = useAudioPlayback();
+  const [diagnostics, setDiagnostics] = useState<Diagnostics>(emptyDiagnostics);
+  useEffect(() => {
+    let live = true;
+    setDiagnostics({ context: pending, speaker: pending, semantic: pending });
+    function load<K extends keyof Diagnostics>(
+      key: K,
+      call: () => Promise<Diagnostics[K]>,
+    ) {
+      Promise.resolve()
+        .then(call)
+        .then((value) => {
+          if (live)
+            setDiagnostics((previous) => ({ ...previous, [key]: value }));
+        })
+        .catch(() => {
+          if (live)
+            setDiagnostics((previous) => ({
+              ...previous,
+              [key]: {
+                state: "network_error",
+                message:
+                  "Saved observations could not be loaded. Reload to retry.",
+                data: null,
+              },
+            }));
+        });
+    }
+    load("context", () => api.contextualAsr(id));
+    load("speaker", () => api.speakerReliability(id));
+    load("semantic", () => api.semanticReasoning(id));
+    return () => {
+      live = false;
+    };
+  }, [id, attempt]);
   useEffect(() => {
     let live = true;
     setError("");
@@ -148,6 +195,38 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
     refined.utterances.map((row) => row.speaker_id).filter(Boolean),
   ).size;
   const active = activeUtterance(refined.utterances, audio.now);
+  const entries = deriveReview(record, refined.utterances, diagnostics);
+  function inspect(ids: string[], title: string, item?: string) {
+    if (item) {
+      void showEvidence(item, title, "Review");
+      return;
+    }
+    trigger.current = document.activeElement as HTMLElement;
+    requestId.current++;
+    setEvidence({
+      item: ids.join(", "),
+      text: title,
+      kind: "Transcript observation",
+      spans: refined.utterances.filter((u) => ids.includes(u.utterance_id)),
+      loading: false,
+      error: "",
+    });
+  }
+  function playEvidence(ids: string[]) {
+    const row = refined.utterances.find((u) => u.utterance_id === ids[0]);
+    if (row)
+      void audio.play(row.start, {
+        start: row.start,
+        end: row.end,
+        item: "observation",
+        utterance: row.utterance_id,
+      });
+  }
+  const navigation = {
+    onPlay: playEvidence,
+    onJump: jumpTo,
+    onInspect: inspect,
+  };
   return (
     <>
       <main className={`workspace-page ${evidence ? "drawer-open" : ""}`}>
@@ -198,6 +277,9 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
               {views.map((name) => (
                 <TabsTrigger key={name} value={name}>
                   {name}
+                  {name === "Review" && entries.length > 0 && (
+                    <span className="tab-count">{entries.length}</span>
+                  )}
                   {(name === "Decisions" || name === "Action Items") && (
                     <span className="tab-count">
                       {name === "Decisions"
@@ -210,6 +292,20 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
             </TabsList>
           </div>
           <TabsContent value="Overview">
+            <MeetingReliability
+              diagnostics={diagnostics}
+              entries={entries}
+              evidenceCount={[
+                ...content.summary,
+                ...content.minutes,
+                ...content.decisions,
+                ...content.action_items,
+              ].reduce(
+                (count, item) => count + item.evidence_utterance_ids.length,
+                0,
+              )}
+              onReview={() => setView("Review")}
+            />
             <Overview
               content={content}
               duration={raw.duration_seconds}
@@ -225,6 +321,8 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
               activeId={audio.playing ? active?.utterance_id : undefined}
               jump={jump}
               onPlay={playUtterance}
+              diagnostics={diagnostics}
+              onInspect={(row) => inspect([row.utterance_id], row.refined_text)}
             />
           </TabsContent>
           <TabsContent value="Minutes">
@@ -281,7 +379,14 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
             <div className="card-grid">
               {content.decisions.length ? (
                 content.decisions.map((item) => (
-                  <DecisionCard key={item.id} item={item} show={showEvidence} />
+                  <DecisionCard
+                    key={item.id}
+                    item={item}
+                    show={showEvidence}
+                    verification={diagnostics.semantic.data?.verification.find(
+                      (v) => v.item_id === item.id,
+                    )}
+                  />
                 ))
               ) : (
                 <EmptyState title="No confirmed decisions">
@@ -309,6 +414,9 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
                     item={item}
                     index={index}
                     show={showEvidence}
+                    verification={diagnostics.semantic.data?.verification.find(
+                      (v) => v.item_id === item.id,
+                    )}
                   />
                 ))
               ) : (
@@ -317,6 +425,16 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
                 </EmptyState>
               )}
             </div>
+          </TabsContent>
+          <TabsContent value="Decision Evolution">
+            <EvolutionView diagnostics={diagnostics} {...navigation} />
+          </TabsContent>
+          <TabsContent value="Review">
+            <ReviewView
+              entries={entries}
+              diagnostics={diagnostics}
+              {...navigation}
+            />
           </TabsContent>
         </Tabs>
         <details className="processing-details">
@@ -342,6 +460,7 @@ export function Workspace({ id, job }: { id: string; job: Job }) {
         onClose={closeEvidence}
         onJump={jumpTo}
         audio={audio}
+        diagnostics={diagnostics}
       />
       <AudioPlayer
         controller={audio}

@@ -54,3 +54,7 @@ coverage/
 .vscode/
 .DS_Store
 Thumbs.db
+.venv-secondary/
+.venv-semantic/
+.venv-decision/
+*.nemo

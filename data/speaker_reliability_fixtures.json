@@ -1,0 +1,12 @@
+{
+  "origin": "Original authored Phase IX scripts; synthesized locally with Windows SAPI",
+  "voices": ["Microsoft David Desktop", "Microsoft Zira Desktop", "Microsoft Mark"],
+  "fixtures": [
+    {"id": "A_clean", "gap_seconds": 0.4, "turns": [[0, "We should benchmark both models tomorrow."], [1, "I will save three reports by Friday."], [0, "Do not change the original recording."], [1, "The canonical sample rate is sixteen kilohertz."]]},
+    {"id": "B_rapid", "gap_seconds": 0.0, "turns": [[0, "Ready now."], [1, "Yes, go."], [0, "Run it."], [1, "All done."], [0, "Save both."], [1, "Okay, saved."]]},
+    {"id": "C_overlap", "gap_seconds": 0.1, "overlap_seconds": 1.2, "turns": [[0, "The current benchmark needs another complete evaluation."], [1, "Wait, we should check the overlap first."], [0, "Keep the original speaker labels."], [1, "Yes, I agree with that approach."]]},
+    {"id": "D_three", "gap_seconds": 0.3, "turns": [[0, "I will run the first benchmark tomorrow."], [1, "Please measure latency and memory usage."], [2, "I will review the results before Friday."], [0, "We should not skip the validation checks."], [2, "The sample rate must remain sixteen kilohertz."], [1, "Save all three reports in the workspace."]]},
+    {"id": "E_gaps", "gap_seconds": 2.0, "turns": [[0, "Start the benchmark now."], [1, "I will wait for the report."], [0, "Please save the results."]]},
+    {"id": "F_interjections", "gap_seconds": 0.0, "turns": [[0, "We should preserve the original recording and validate every timestamp."], [1, "Yes."], [0, "Please run the benchmark before Friday and save three reports."], [1, "No."], [0, "We will review both models tomorrow morning."], [1, "Okay."]]}
+  ]
+}

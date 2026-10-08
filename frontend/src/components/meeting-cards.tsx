@@ -10,6 +10,8 @@ import type { Action, Item, Minute, Record } from "../types";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
 import { EmptyState, EvidenceButton } from "./common";
+import { SemanticDisclosure } from "./trust";
+import type { SemanticVerification } from "../diagnostics";
 
 export type ShowEvidence = (id: string, text: string, kind: string) => void;
 export function SourceCount({
@@ -69,9 +71,11 @@ export function MinuteCard({
 export function DecisionCard({
   item,
   show,
+  verification,
 }: {
   item: Item;
   show: ShowEvidence;
+  verification?: SemanticVerification;
 }) {
   return (
     <Card className="intelligence-card decision-card">
@@ -84,6 +88,7 @@ export function DecisionCard({
       </div>
       <p>{item.text}</p>
       <EvidenceButton onClick={() => show(item.id, item.text, "Decision")} />
+      <SemanticDisclosure value={verification} />
     </Card>
   );
 }
@@ -91,10 +96,12 @@ export function ActionCard({
   item,
   index,
   show,
+  verification,
 }: {
   item: Action;
   index: number;
   show: ShowEvidence;
+  verification?: SemanticVerification;
 }) {
   return (
     <Card className="intelligence-card task-card">
@@ -133,6 +140,7 @@ export function ActionCard({
         />
         <SourceCount item={item} />
       </div>
+      <SemanticDisclosure value={verification} />
     </Card>
   );
 }

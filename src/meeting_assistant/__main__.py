@@ -15,11 +15,21 @@ def main(argv: list[str] | None = None) -> int:
         print("Also: python -m meeting_assistant refine INPUT [refinement options]")
         print("Also: python -m meeting_assistant intelligence INPUT [intelligence options]")
         print("Also: python -m meeting_assistant evidence RECORD ITEM_ID --refined JSON")
+        print("Also: python -m meeting_assistant context [context pack options]")
+        print("Also: python -m meeting_assistant semantics RECORD --refined JSON --speaker JSON")
         return 0
     if arguments[0] == "intelligence":
         from .intelligence.__main__ import main as intelligence_main
 
         return intelligence_main(arguments[1:])
+    if arguments[0] == "semantics":
+        from .semantic_reasoning.__main__ import main as semantics_main
+
+        return semantics_main(arguments[1:])
+    if arguments[0] == "context":
+        from .contextual_asr.__main__ import main as context_main
+
+        return context_main(arguments[1:])
     if arguments[0] == "evidence":
         from .intelligence.__main__ import evidence_main
 

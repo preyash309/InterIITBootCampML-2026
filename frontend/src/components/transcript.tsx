@@ -7,6 +7,18 @@ import { EmptyState, SpeakerBadge } from "./common";
 import type { Raw, Utterance } from "../types";
 import { timestamp } from "../playback";
 import { cn } from "../lib/utils";
+import {
+  emptyDiagnostics,
+  type Diagnostics,
+  type SpeakerObservation,
+} from "../diagnostics";
+import { SpeakerStatus } from "./trust";
+
+function scrollBehavior(): ScrollBehavior {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "auto"
+    : "smooth";
+}
 
 export function Highlight({ text, query }: { text: string; query: string }) {
   if (!query.trim()) return text;
@@ -36,6 +48,9 @@ export const TranscriptBubble = memo(function TranscriptBubble({
   jumped,
   query,
   onPlay,
+  observation,
+  contextChecked,
+  onInspect,
 }: {
   row: Utterance;
   raw: boolean;
@@ -43,6 +58,9 @@ export const TranscriptBubble = memo(function TranscriptBubble({
   jumped: boolean;
   query: string;
   onPlay: (start: number) => void;
+  observation?: SpeakerObservation;
+  contextChecked?: boolean;
+  onInspect?: (row: Utterance) => void;
 }) {
   const alternate =
     !!row.speaker_id &&
@@ -61,6 +79,17 @@ export const TranscriptBubble = memo(function TranscriptBubble({
     >
       <div className="message-meta">
         <SpeakerBadge id={row.speaker_id} />
+        {observation && (
+          <SpeakerStatus
+            observation={observation}
+            onClick={() => onInspect?.(row)}
+          />
+        )}
+        {contextChecked && (
+          <button className="trust-badge" onClick={() => onInspect?.(row)}>
+            ◇ Context checked
+          </button>
+        )}
         <button
           className="message-time"
           aria-label={`Play utterance at ${timestamp(row.start)}`}
@@ -99,12 +128,16 @@ export function Transcript({
   activeId,
   jump,
   onPlay,
+  diagnostics = emptyDiagnostics,
+  onInspect,
 }: {
   rows: Utterance[];
   raw: Raw;
   activeId?: string;
   jump: string;
   onPlay: (start: number) => void;
+  diagnostics?: Diagnostics;
+  onInspect?: (row: Utterance) => void;
 }) {
   const [rawView, setRawView] = useState(false),
     [query, setQuery] = useState("");
@@ -123,7 +156,7 @@ export function Transcript({
       setRawView(false);
       const frame = requestAnimationFrame(() => {
         const node = document.getElementById(jump);
-        node?.scrollIntoView({ behavior: "smooth", block: "center" });
+        node?.scrollIntoView({ behavior: scrollBehavior(), block: "center" });
         node?.focus({ preventScroll: true });
       });
       return () => cancelAnimationFrame(frame);
@@ -154,7 +187,7 @@ export function Transcript({
     if (follow && activeId && Date.now() - recentManual.current > 4000)
       document
         .getElementById(activeId)
-        ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        ?.scrollIntoView({ behavior: scrollBehavior(), block: "nearest" });
   }, [activeId, follow]);
   function next(direction: number) {
     if (!found.length) return;
@@ -162,7 +195,7 @@ export function Transcript({
     setMatch(index);
     document
       .getElementById(found[index].utterance_id)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      ?.scrollIntoView({ behavior: scrollBehavior(), block: "center" });
     document
       .getElementById(found[index].utterance_id)
       ?.focus({ preventScroll: true });
@@ -266,6 +299,13 @@ export function Transcript({
               jumped={jump === row.utterance_id}
               query={query}
               onPlay={onPlay}
+              observation={diagnostics.speaker.data?.utterances.find(
+                (u) => u.utterance_id === row.utterance_id,
+              )}
+              contextChecked={diagnostics.context.data?.hypotheses.some((h) =>
+                h.utterance_ids.includes(row.utterance_id),
+              )}
+              onInspect={onInspect}
             />
           ))
         ) : (

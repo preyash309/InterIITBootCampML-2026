@@ -14,6 +14,8 @@ import { EmptyState, ErrorState, LoadingCards, SpeakerBadge } from "./common";
 import type { Utterance } from "../types";
 import type { AudioController } from "../hooks/useAudioPlayback";
 import { timestamp } from "../playback";
+import { emptyDiagnostics, type Diagnostics } from "../diagnostics";
+import { TrustDetails } from "./trust";
 
 export type EvidenceState = {
   item: string;
@@ -28,11 +30,13 @@ export function EvidenceSheet({
   onClose,
   onJump,
   audio,
+  diagnostics = emptyDiagnostics,
 }: {
   evidence: EvidenceState | null;
   onClose: () => void;
   onJump: (id: string) => void;
   audio: AudioController;
+  diagnostics?: Diagnostics;
 }) {
   const [mobile, setMobile] = useState(
     () => window.matchMedia("(max-width: 767px)").matches,
@@ -163,6 +167,11 @@ export function EvidenceSheet({
                         Word references: {span.source_word_refs.length}
                       </span>
                     </details>
+                    <TrustDetails
+                      diagnostics={diagnostics}
+                      utterance={span}
+                      itemId={evidence.item}
+                    />
                   </article>
                 );
               })

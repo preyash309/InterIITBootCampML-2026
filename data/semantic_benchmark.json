@@ -1,0 +1,844 @@
+{
+  "version": "semantic_benchmark_v1",
+  "origin": "Authored intended semantics; not a human-meeting corpus",
+  "cases": [
+    {
+      "id": "proposal_only",
+      "origin": "Phase VI reused",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "We could switch to PostgreSQL."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "accepted_decision",
+      "origin": "Phase VI reused",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "We could switch to PostgreSQL."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "Yes, agreed. Let's switch to PostgreSQL."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "DECISION"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "ACCEPTS"
+        }
+      ],
+      "current_decision_utterance_ids": [
+        "utt_000002"
+      ],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "rejected_proposal",
+      "origin": "Phase VI reused",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "Maybe switch to MongoDB."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "No, let's keep PostgreSQL."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "DECISION"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "REJECTS"
+        }
+      ],
+      "current_decision_utterance_ids": [
+        "utt_000002"
+      ],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "named_assignment",
+      "origin": "Phase VI reused",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "Rahul, benchmark both models by Friday."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "TASK_ASSIGNMENT"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [
+        {
+          "evidence_ids": [
+            "utt_000001"
+          ],
+          "owner": "Rahul",
+          "deadline": "Friday"
+        }
+      ],
+      "coverage_reference": null
+    },
+    {
+      "id": "self_commitment",
+      "origin": "Phase VI reused",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "I'll benchmark both models."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "COMMITMENT"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [
+        {
+          "evidence_ids": [
+            "utt_000001"
+          ],
+          "owner": "SPEAKER_00",
+          "deadline": null
+        }
+      ],
+      "coverage_reference": null
+    },
+    {
+      "id": "someone_should",
+      "origin": "Phase VI reused",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "Someone should review the dashboard. This is only a suggestion, not an assignment."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "ambiguous_named_request",
+      "origin": "Phase VI reused",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "Can Rahul maybe benchmark it sometime? We have not assigned this work."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "explicit_deadline",
+      "origin": "Phase VI reused",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "I will send the report by Friday, not Monday."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "COMMITMENT"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [
+        {
+          "evidence_ids": [
+            "utt_000001"
+          ],
+          "owner": "SPEAKER_00",
+          "deadline": "Friday"
+        }
+      ],
+      "coverage_reference": null
+    },
+    {
+      "id": "shipping_reversal",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "We'll ship Friday."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "Actually, move shipping to Monday instead."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "DECISION"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "DECISION"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "SUPERSEDES"
+        }
+      ],
+      "current_decision_utterance_ids": [
+        "utt_000002"
+      ],
+      "historical_decision_utterance_ids": [
+        "utt_000001"
+      ],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "question_answer",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "What is the latency?"
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "The latency is 20 milliseconds."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "QUESTION"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "ANSWER"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "ANSWERS"
+        }
+      ],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "blocker",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "The deployment is blocked until credentials arrive."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "BLOCKER"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "clarification",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "The benchmark measures latency."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "By latency, I mean the p95 response time."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "INFORMATION"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "CLARIFICATION"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "CLARIFIES"
+        }
+      ],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "interleaved_topics",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "We could use Redis for the cache."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "We'll ship Friday."
+        },
+        {
+          "id": "utt_000003",
+          "speaker_id": "SPEAKER_00",
+          "text": "Agreed, use Redis for the cache."
+        },
+        {
+          "id": "utt_000004",
+          "speaker_id": "SPEAKER_01",
+          "text": "Actually, move shipping to Monday instead."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "DECISION"
+        },
+        {
+          "utterance_id": "utt_000003",
+          "type": "DECISION"
+        },
+        {
+          "utterance_id": "utt_000004",
+          "type": "DECISION"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000003",
+          "type": "ACCEPTS"
+        },
+        {
+          "source_utterance_id": "utt_000002",
+          "target_utterance_id": "utt_000004",
+          "type": "SUPERSEDES"
+        }
+      ],
+      "current_decision_utterance_ids": [
+        "utt_000003",
+        "utt_000004"
+      ],
+      "historical_decision_utterance_ids": [
+        "utt_000002"
+      ],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "repeated_decision",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "Use Redis for the cache."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "Yes, use Redis for the cache."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "DECISION"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "DECISION"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "SUPPORTS"
+        }
+      ],
+      "current_decision_utterance_ids": [
+        "utt_000001",
+        "utt_000002"
+      ],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "unresolved_proposal",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "Maybe we could deploy Monday."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "We need more evidence first."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "OBJECTION"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "CONTRADICTS"
+        }
+      ],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "ambiguous",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "That could be it."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "AMBIGUOUS"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "negation",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "Do not deploy this service."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "DECISION"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [
+        "utt_000001"
+      ],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "conditional",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "If latency improves, we'll deploy it."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        }
+      ],
+      "relations": [],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "decision_to_task",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "Agreed, use Redis for the cache."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "Rahul, benchmark Redis for the cache by Friday."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "DECISION"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "TASK_ASSIGNMENT"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "ASSIGNS"
+        }
+      ],
+      "current_decision_utterance_ids": [
+        "utt_000001"
+      ],
+      "historical_decision_utterance_ids": [],
+      "tasks": [
+        {
+          "evidence_ids": [
+            "utt_000002"
+          ],
+          "owner": "Rahul",
+          "deadline": "Friday"
+        }
+      ],
+      "coverage_reference": null
+    },
+    {
+      "id": "support_not_acceptance",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "We could use Redis."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "I like the idea, but we haven't decided."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "SUPPORT"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "SUPPORTS"
+        }
+      ],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    },
+    {
+      "id": "explicit_rejection",
+      "origin": "Project-authored",
+      "turns": [
+        {
+          "id": "utt_000001",
+          "speaker_id": "SPEAKER_00",
+          "text": "We could migrate to MongoDB."
+        },
+        {
+          "id": "utt_000002",
+          "speaker_id": "SPEAKER_01",
+          "text": "No, reject the MongoDB migration."
+        }
+      ],
+      "events": [
+        {
+          "utterance_id": "utt_000001",
+          "type": "PROPOSAL"
+        },
+        {
+          "utterance_id": "utt_000002",
+          "type": "REJECTION"
+        }
+      ],
+      "relations": [
+        {
+          "source_utterance_id": "utt_000001",
+          "target_utterance_id": "utt_000002",
+          "type": "REJECTS"
+        }
+      ],
+      "current_decision_utterance_ids": [],
+      "historical_decision_utterance_ids": [],
+      "tasks": [],
+      "coverage_reference": null
+    }
+  ],
+  "verification_challenges": [
+    {
+      "id": "proposal_as_decision",
+      "evidence": "We could use Redis.",
+      "claim": "Use Redis.",
+      "kind": "decision",
+      "owner": null,
+      "deadline": null,
+      "dimensions": {
+        "claim_supported": "NO",
+        "item_type_supported": "NO"
+      }
+    },
+    {
+      "id": "rejected_as_decision",
+      "evidence": "No, reject Redis.",
+      "claim": "Use Redis.",
+      "kind": "decision",
+      "owner": null,
+      "deadline": null,
+      "dimensions": {
+        "claim_supported": "NO",
+        "item_type_supported": "NO",
+        "negation_preserved": "NO"
+      }
+    },
+    {
+      "id": "valid_decision",
+      "evidence": "Agreed, use Redis.",
+      "claim": "Use Redis.",
+      "kind": "decision",
+      "owner": null,
+      "deadline": null,
+      "dimensions": {
+        "claim_supported": "YES",
+        "item_type_supported": "YES"
+      }
+    },
+    {
+      "id": "suggestion_as_task",
+      "evidence": "Someone should benchmark. This is only a suggestion.",
+      "claim": "Benchmark.",
+      "kind": "action",
+      "owner": null,
+      "deadline": null,
+      "dimensions": {
+        "claim_supported": "NO",
+        "item_type_supported": "NO"
+      }
+    },
+    {
+      "id": "valid_task",
+      "evidence": "Rahul, benchmark both models by Friday.",
+      "claim": "Benchmark both models.",
+      "kind": "action",
+      "owner": "Rahul",
+      "deadline": "Friday",
+      "dimensions": {
+        "claim_supported": "YES",
+        "item_type_supported": "YES",
+        "owner_explicit": "YES",
+        "deadline_explicit": "YES"
+      }
+    },
+    {
+      "id": "wrong_owner",
+      "evidence": "Rahul suggested that Priya benchmark both models. Priya agreed to do it.",
+      "claim": "Benchmark both models.",
+      "kind": "action",
+      "owner": "Rahul",
+      "deadline": null,
+      "dimensions": {
+        "owner_explicit": "NO"
+      }
+    },
+    {
+      "id": "wrong_deadline",
+      "evidence": "I will send the report Friday, not Monday.",
+      "claim": "Send the report.",
+      "kind": "action",
+      "owner": "SPEAKER_00",
+      "deadline": "Monday",
+      "dimensions": {
+        "deadline_explicit": "NO"
+      }
+    },
+    {
+      "id": "negation_lost",
+      "evidence": "Do not deploy Redis.",
+      "claim": "Deploy Redis.",
+      "kind": "decision",
+      "owner": null,
+      "deadline": null,
+      "dimensions": {
+        "claim_supported": "NO",
+        "negation_preserved": "NO"
+      }
+    },
+    {
+      "id": "number_changed",
+      "evidence": "Keep the discount at 15%, not 50%.",
+      "claim": "Keep the discount at 50%.",
+      "kind": "decision",
+      "owner": null,
+      "deadline": null,
+      "dimensions": {
+        "claim_supported": "NO",
+        "numbers_preserved": "NO"
+      }
+    },
+    {
+      "id": "conditional_as_final",
+      "evidence": "If latency improves, we'll deploy it.",
+      "claim": "Deploy it.",
+      "kind": "decision",
+      "owner": null,
+      "deadline": null,
+      "dimensions": {
+        "item_type_supported": "NO",
+        "scope_preserved": "NO"
+      }
+    },
+    {
+      "id": "commitment",
+      "evidence": "I'll send the report tomorrow.",
+      "claim": "Send the report.",
+      "kind": "action",
+      "owner": "SPEAKER_00",
+      "deadline": "tomorrow",
+      "dimensions": {
+        "item_type_supported": "YES",
+        "owner_explicit": "YES",
+        "deadline_explicit": "YES"
+      }
+    }
+  ]
+}

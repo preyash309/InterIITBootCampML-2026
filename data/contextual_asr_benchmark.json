@@ -1,0 +1,20 @@
+{
+  "version": "context_asr_benchmark_v1",
+  "provenance": "Original synthetic pronunciation/intended-term cases and protected negative controls. Not a manually checked acoustic reference or held-out meeting dataset.",
+  "cases": [
+    {"id": "kubernetes", "term": "Kubernetes", "spoken_text": "Deploy the containers with cube net ease.", "reference_text": "Deploy the containers with Kubernetes."},
+    {"id": "qdrant", "term": "Qdrant", "spoken_text": "Use cue drant for vector search.", "reference_text": "Use Qdrant for vector search."},
+    {"id": "pytorch", "term": "PyTorch", "spoken_text": "Train the neural network using PyTorch.", "reference_text": "Train the neural network using PyTorch."},
+    {"id": "cuda", "term": "CUDA", "spoken_text": "CUDA accelerates the matrix multiplication.", "reference_text": "CUDA accelerates the matrix multiplication."},
+    {"id": "postgresql", "term": "PostgreSQL", "spoken_text": "Keep PostgreSQL as the relational database.", "reference_text": "Keep PostgreSQL as the relational database."},
+    {"id": "hnsw", "term": "HNSW", "spoken_text": "Use H N S W for approximate nearest neighbor search.", "reference_text": "Use HNSW for approximate nearest neighbor search."},
+    {"id": "newton", "term": "Newton-Raphson", "spoken_text": "Apply the Newton Raphson method to the equation.", "reference_text": "Apply the Newton-Raphson method to the equation."},
+    {"id": "reactor", "term": "plug flow reactor", "spoken_text": "Compare the plug flow reactor with the stirred tank.", "reference_text": "Compare the plug flow reactor with the stirred tank."},
+    {"id": "device", "term": null, "spoken_text": "Use the GPU, not the CPU, for this experiment.", "reference_text": "Use the GPU, not the CPU, for this experiment."},
+    {"id": "percentage", "term": null, "spoken_text": "The discount stays fifteen percent, not fifty percent.", "reference_text": "The discount stays fifteen percent, not fifty percent."},
+    {"id": "deadline", "term": null, "spoken_text": "Finish by Friday, not Monday.", "reference_text": "Finish by Friday, not Monday."},
+    {"id": "negation", "term": null, "spoken_text": "Do not deploy on Monday. We might deploy later.", "reference_text": "Do not deploy on Monday. We might deploy later."},
+    {"id": "version", "term": null, "spoken_text": "Keep model version one hundred twenty, not version twenty.", "reference_text": "Keep model version one hundred twenty, not version twenty."},
+    {"id": "homophone", "term": null, "spoken_text": "Draw four quadrants on the coordinate plane.", "reference_text": "Draw four quadrants on the coordinate plane."}
+  ]
+}

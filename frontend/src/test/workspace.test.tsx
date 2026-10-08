@@ -25,6 +25,9 @@ vi.mock("../api", () => ({
     raw: vi.fn(),
     downloads: vi.fn(),
     evidence: vi.fn(),
+    contextualAsr: vi.fn(),
+    speakerReliability: vi.fn(),
+    semanticReasoning: vi.fn(),
     audio: () => "/api/meetings/test/audio",
   },
 }));
@@ -115,6 +118,14 @@ const files: Download[] = [
   },
 ];
 beforeEach(() => {
+  const absent = {
+    state: "not_generated" as const,
+    message: "Not evaluated for this meeting.",
+    data: null,
+  };
+  vi.mocked(api.contextualAsr).mockResolvedValue(absent);
+  vi.mocked(api.speakerReliability).mockResolvedValue(absent);
+  vi.mocked(api.semanticReasoning).mockResolvedValue(absent);
   vi.mocked(api.record).mockResolvedValue(record);
   vi.mocked(api.refined).mockResolvedValue(refined);
   vi.mocked(api.raw).mockResolvedValue(raw);
@@ -348,6 +359,52 @@ describe("source evidence", () => {
   });
 });
 describe("downloads and empty records", () => {
+  it("loads canonical results while optional observations are pending", async () => {
+    vi.mocked(api.contextualAsr).mockReturnValue(new Promise(() => {}));
+    vi.mocked(api.speakerReliability).mockReturnValue(new Promise(() => {}));
+    vi.mocked(api.semanticReasoning).mockReturnValue(new Promise(() => {}));
+    render(<Workspace id="test" job={job} />);
+    expect(await screen.findByText("Meeting summary")).toBeVisible();
+    expect(document.querySelectorAll("audio")).toHaveLength(1);
+  });
+  it("routes experimental review playback and evidence through canonical controllers", async () => {
+    vi.mocked(api.semanticReasoning).mockResolvedValue({
+      state: "available",
+      message: "Saved observations",
+      data: {
+        availability: "available",
+        models: ["fixture"],
+        events: [],
+        relations: [],
+        decision_evolution: [],
+        coverage: [],
+        verification: [
+          {
+            item_id: record.content.summary[0].id,
+            status: "REVIEW",
+            evidence_utterance_ids: [rows[0].utterance_id],
+            dimensions: [],
+          },
+        ],
+      },
+    });
+    render(<Workspace id="test" job={job} />);
+    await screen.findByText("Meeting summary");
+    await userEvent.click(screen.getByRole("tab", { name: /Review/ }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Play" }),
+    );
+    expect(document.querySelectorAll("audio")).toHaveLength(1);
+    expect(document.querySelector("audio")?.currentTime).toBe(rows[0].start);
+    await userEvent.click(
+      screen.getByRole("button", { name: "View evidence" }),
+    );
+    await screen.findByRole("dialog", { name: "Evidence" });
+    expect(api.evidence).toHaveBeenCalledWith(
+      "test",
+      record.content.summary[0].id,
+    );
+  });
   it("groups audio under Advanced without changing artifact URLs", async () => {
     render(<DownloadMenu files={files} />);
     await userEvent.click(screen.getByRole("button", { name: "Downloads" }));

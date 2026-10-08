@@ -27,7 +27,7 @@ MAX_RESPONSE_BYTES = 20_000_000
 
 
 def _multipart(
-    config: ASRConfig, options: TranscriptionOptions, boundary: str
+    config: ASRConfig, options: TranscriptionOptions, boundary: str, *, prompt: str | None = None
 ) -> tuple[bytes, bytes]:
     fields = [
         ("model", config.model),
@@ -38,6 +38,15 @@ def _multipart(
     ]
     if options.language is not None:
         fields.append(("language", options.language))
+    if prompt is not None:
+        if (
+            not isinstance(prompt, str)
+            or not prompt
+            or len(prompt.encode("utf-8")) > 223
+            or any(ord(c) < 32 for c in prompt)
+        ):
+            raise ASRTranscriptionError("Contextual vocabulary prompt exceeds safe bounds.")
+        fields.append(("prompt", prompt))
     prefix = "".join(
         f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'
         for name, value in fields
@@ -83,10 +92,12 @@ def request_transcription(
     config: ASRConfig,
     options: TranscriptionOptions,
     timeout_seconds: float,
+    *,
+    prompt: str | None = None,
 ) -> dict:
     host, endpoint, _ = PROVIDERS[config.provider]
     boundary = "meeting-" + uuid4().hex
-    prefix, suffix = _multipart(config, options, boundary)
+    prefix, suffix = _multipart(config, options, boundary, prompt=prompt)
     connection = http.client.HTTPSConnection(host, timeout=timeout_seconds)
     deadline = time.perf_counter() + timeout_seconds
     try:

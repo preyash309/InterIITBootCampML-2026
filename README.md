@@ -16,6 +16,7 @@ Built for the Inter-IIT ML Bootcamp. The current application combines hosted spe
 - Opens source evidence, jumps to cited transcript utterances and plays their audio intervals.
 - Preserves raw vs refined transcripts, correction logs and downloadable JSON, TXT and Markdown artifacts.
 - Retains local job history, stage progress and failures without automatically rerunning paid work.
+- Supports optional meeting context and bounded contextual re-ASR through the CLI/Python API. Alternative hypotheses pass through the existing conservative refinement gate; raw ASR stays immutable. See [Phase VIII](docs/phase8-contextual-asr.md).
 
 ## Why evidence matters
 
@@ -38,6 +39,23 @@ These screenshots show an original, locally synthesized two-voice fixture, not a
 
 **Demo workflow:** upload → follow six processing stages → review Overview / Transcript / Minutes / Decisions / Action Items → open evidence → play its interval or jump to the transcript → download the original artifacts.
 
+### Phase XI — Trust-aware workspace
+
+The workspace now reads saved context audits, independent speaker comparisons and
+experimental semantic observations. Overview separates reliability dimensions;
+transcript badges open the shared evidence drawer; Decision Evolution and Review
+link observations to the existing source audio and transcript. Missing diagnostics
+leave canonical results usable. Opening any view makes no model call.
+
+Contextual ASR has no measured terminology gain in the current baseline. Speaker
+agreement measures consistency, not correctness. The local semantic observer performed
+poorly and cannot approve, remove or change canonical decisions or actions.
+
+![Meeting reliability and review entry point](docs/assets/phase11/overview.jpg)
+
+See [Phase XI behavior and API](docs/phase11-trust-aware-ui.md) and
+[tests, responsive checks and screenshots](docs/phase11-validation.md).
+
 ## Architecture
 
 ```mermaid
@@ -56,6 +74,15 @@ flowchart TD
     E -->|Refined text + raw references| V
     V -->|Quotes, speakers, intervals| UI
     A -->|Canonical audio / HTTP byte ranges| UI
+    CP[Optional context pack] -.-> CA[Phase VIII: contextual ASR hypotheses]
+    CA -.->|Conservative edit gate| E
+    A -.-> SF[Phase IX: independent Sortformer]
+    C -.-> SR[Speaker reliability sidecars]
+    SF -.-> SR
+    R -.-> SO[Phase X: experimental semantic observer]
+    SO -.->|Event graph / semantic review| UI
+    SR -.->|Agreement risk signals| UI
+    CA -.->|Context audit| UI
 ```
 
 Each phase has a separate typed public interface. The application calls those interfaces and reuses local model instances. Raw ASR is retained separately from refined text and generated claims.
@@ -81,6 +108,9 @@ src/meeting_assistant/
   grounding/      # terminology evidence + packaged glossary
   refinement/     # conservative edits and audit log
   intelligence/   # meeting record and deterministic evidence
+  contextual_asr/ # optional context and selective second-pass hypotheses
+  speaker_reliability/ # optional independent diarizer agreement
+  semantic_reasoning/ # experimental event and claim observations
   web/            # REST API, orchestration, SQLite, artifact serving
 frontend/         # React/TypeScript workspace and interaction tests
 data/             # small authored benchmark definitions, not runtime meetings
@@ -208,11 +238,11 @@ Downloads serve the original registered files. JSON, Markdown and the UI derive 
 
 ## Tests and measured results
 
-Fresh release checks on **2026-10-07**:
+Fresh Phases VIII–XI integration checks on **2026-10-08**:
 
-- Backend: **542 tests; 523 passed, 19 skipped**, including all 13 real FFmpeg integration tests. Skips cover live-provider/local-model opt-ins and two Windows symlink privilege cases.
-- Ruff lint and format checks, compilation and `pip check`: passed.
-- Frontend: **21/21 tests**, ESLint, TypeScript and production build: passed. Clean `npm ci` reported zero audit vulnerabilities.
+- Backend: **772 tests; 747 passed, 25 skipped**, including all 13 real FFmpeg integration tests. Skips cover live-provider/local-model opt-ins and two Windows symlink privilege cases.
+- Ruff lint and format checks, compilation and main/optional-environment `pip check`: passed.
+- Frontend: **37/37 tests**, ESLint, TypeScript and production build: passed. Dependency installation was retained for this integration; no fresh `npm ci` or vulnerability audit was run.
 
 ```powershell
 python -m unittest discover -s tests -t .
@@ -253,9 +283,14 @@ WER requires your checked reference text. Authored benchmark definitions under `
 | V — Transcript refinement | [Guide](docs/phase5-refinement.md), [validation](docs/phase5-validation.md) |
 | VI — Meeting intelligence | [Guide](docs/phase6-intelligence.md), [validation](docs/phase6-validation.md) |
 | VII — Application | [REST/setup/persistence](docs/phase7-application.md), [validation](docs/phase7-validation.md) |
+| VIII — Contextual ASR | [Context packs, selective ASR and APIs](docs/phase8-contextual-asr.md), [measured results](docs/phase8-validation.md) |
+| IX — Speaker reliability | [Independent diarizer and contract](docs/phase9-speaker-reliability.md), [measured results](docs/phase9-validation.md) |
+| X — Experimental semantics | [Local models and contracts](docs/phase10-semantic-reasoning.md), [measured results](docs/phase10-validation.md) |
+| XI — Trust-aware workspace | [UI and diagnostic API](docs/phase11-trust-aware-ui.md), [validation](docs/phase11-validation.md) |
 | UI — Frontend polish | [Interactions, responsiveness and checks](docs/ui-polish-validation.md) |
 
 Historical phase reports describe their state at the time; later phases supersede their deferred-feature notes.
+See the [VIII–XI integration record](docs/phase8-11-release.md) for the fresh release checks and audit.
 
 ## Known limitations and future work
 
@@ -266,10 +301,39 @@ Historical phase reports describe their state at the time; later phases supersed
 - Long transcripts/history are not virtualized/paginated; local diarization loads the waveform into memory and stage budgets constrain long meetings.
 - Validation uses synthetic voices; no annotated real human-meeting evaluation dataset exists yet.
 
-Deferred: independent semantic verification, speaker-name resolution, local ASR/LLM migration, PDF export and editable human-reviewed corrections. These are not implemented features.
+Deferred: calibrated automatic semantic gating, speaker-name resolution, local ASR/LLM migration, PDF export and editable human-reviewed corrections.
 
 ## Attribution and license
 
 This project integrates Groq-hosted Whisper and OpenAI GPT-OSS, pyannote.audio / Community-1, the sentence-transformers MiniLM checkpoint, FFmpeg, FastAPI, React, Tailwind, shadcn/ui, Radix and Lucide. Third-party software, models and voice tooling retain their own licenses and access conditions.
+Optional Sortformer weights use CC BY-NC 4.0; Julia-1 and GLiNER2.5-Decide model releases use Apache-2.0. These weights are downloaded separately and are subject to their own terms; see the Phase IX/X guides.
 
 **No project LICENSE file is currently present.** Public visibility does not itself grant reuse rights; the team must choose its licensing terms separately.
+## Optional speaker reliability (Phase IX)
+
+An independent local Sortformer diarizer can run in shadow mode. Anonymous secondary
+speakers are aligned to canonical pyannote labels to report temporal disagreement,
+overlap and word/utterance reliability sidecars without changing the transcript.
+Disabled by default; agreement is not a probability of correctness. See
+[Phase IX setup and contract](docs/phase9-speaker-reliability.md) and
+[validation](docs/phase9-validation.md).
+
+Optional setup: `python scripts/setup_secondary_diarizer.py --download-model`.
+Its separate dependency snapshot is [requirements-secondary.lock](requirements-secondary.lock).
+
+## Optional semantic decisions (Phase X)
+
+Local Julia-1 and GLiNER2.5-Decide backends provide bounded typed observations,
+event graphs, decision evolution, claim verification and coverage sidecars.
+The default is **disabled shadow mode**. Neither model performed reliably on
+the authored meeting benchmark; these observations must not automatically
+change the canonical MeetingRecord. Julia is the lightweight experimental
+default; TypeSafe/Jev remains optional and requires billing/access.
+Measured event macro F1 was approximately **0.043 for Julia-1** and **0 for GLiNER2.5-Decide**; relation F1 was **0 for both**. Passing software tests do not establish model accuracy.
+
+Optional setup: `python scripts/setup_semantic_model.py --provider julia --download-model`.
+The isolated snapshots are [requirements-semantic.lock](requirements-semantic.lock) and
+[requirements-decision.lock](requirements-decision.lock). Basic application operation does not require these optional models.
+
+Setup, configuration and saved-evidence CLI: [Phase X guide](docs/phase10-semantic-reasoning.md).
+Actual offline GPU results and limitations: [validation report](docs/phase10-validation.md).

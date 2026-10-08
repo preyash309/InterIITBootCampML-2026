@@ -70,16 +70,53 @@ class UtteranceContext:
 
 
 @dataclass(frozen=True)
+class ContextualRefinementEvidence:
+    hypothesis_id: str
+    grounding_record_id: str
+    candidate_entry_id: str
+    pass2_text: str
+    window_start: float
+    window_end: float
+    context_source_ids: tuple[str, ...]
+
+    def __post_init__(self):
+        identifier(self.hypothesis_id, "casr")
+        identifier(self.grounding_record_id, "grnd")
+        finite(self.window_start)
+        finite(self.window_end, self.window_start)
+        typed_tuple(self.context_source_ids, str)
+        if (
+            not isinstance(self.pass2_text, str)
+            or len(self.pass2_text) > 10000
+            or not self.candidate_entry_id
+        ):
+            raise RefinementValidationError("Invalid bounded contextual evidence.")
+
+
+@dataclass(frozen=True)
 class RefinementRequest:
     target: UtteranceContext
     neighbors: tuple[UtteranceContext, ...]
     records: tuple[GroundingRecord, ...]
+    contextual_evidence: tuple[ContextualRefinementEvidence, ...] = ()
 
     def __post_init__(self):
         if not isinstance(self.target, UtteranceContext):
             raise RefinementValidationError("Request requires a typed target.")
         typed_tuple(self.neighbors, UtteranceContext)
         typed_tuple(self.records, GroundingRecord)
+        typed_tuple(self.contextual_evidence, ContextualRefinementEvidence)
+        if any(
+            not any(
+                r.id == e.grounding_record_id
+                and any(c.entry_id == e.candidate_entry_id for c in r.candidates)
+                for r in self.records
+            )
+            for e in self.contextual_evidence
+        ):
+            raise RefinementValidationError(
+                "Contextual evidence must reference an existing supplied candidate."
+            )
         if any(
             r.utterance_id != self.target.utterance_id
             or r.speaker_id != self.target.speaker_id

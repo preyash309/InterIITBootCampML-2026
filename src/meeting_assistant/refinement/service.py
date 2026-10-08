@@ -90,6 +90,7 @@ def refine_transcript(
     *,
     backend: TranscriptRefinerBackend | None = None,
     config: RefinementConfig | None = None,
+    contextual_asr=None,
 ) -> RefinedTranscript:
     started = time.perf_counter()
     _event("refinement_started")
@@ -99,6 +100,17 @@ def refine_transcript(
         or RefinementConfig.from_env()
     )
     requests = build_requests(source, grounding, config)
+    if contextual_asr is not None:
+        from meeting_assistant.contextual_asr.integration import (
+            attach_request_evidence,
+            refinement_evidence,
+        )
+
+        requests = attach_request_evidence(
+            requests, refinement_evidence(contextual_asr, source, grounding)
+        )
+        for request in requests:
+            request_data(request, config)
     _event(
         "source_validated",
         utterance_count=len(source.utterances),

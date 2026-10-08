@@ -71,15 +71,35 @@ def main(argv=None):
     parser.add_argument("--diarization", type=Path)
     parser.add_argument("--project-glossary", type=Path)
     parser.add_argument("--meeting-context", type=Path)
+    parser.add_argument("--context", type=Path, help="Phase VIII structured context pack.")
+    parser.add_argument(
+        "--context-asr", action="store_true", help="Opt in to bounded extra Whisper calls."
+    )
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument(
+        "--speaker-reliability",
+        action="store_true",
+        help="Optional independent local diarization sidecars.",
+    )
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
+    parser.add_argument(
+        "--semantic-reasoning", action="store_true", help="Optional Jev shadow sidecars."
+    )
     parser.add_argument("--model")
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args(argv)
     if bool(args.speaker) != bool(args.grounding):
         parser.error("Saved mode requires both --speaker and --grounding.")
-    if args.speaker and (args.project_glossary or args.meeting_context):
+    if args.speaker and (
+        args.project_glossary
+        or args.meeting_context
+        or args.context
+        or args.context_asr
+        or args.speaker_reliability
+    ):
         parser.error("Saved evidence cannot be combined with new glossary layers.")
+    if args.context and args.meeting_context:
+        parser.error("Choose --context or the legacy --meeting-context format.")
     if args.audio and not args.diarization or args.diarization and not args.audio:
         parser.error("Saved audio binding requires both --audio and --diarization.")
     if not args.speaker and (args.audio or args.diarization):
@@ -122,9 +142,15 @@ def main(argv=None):
             diarization=diarization,
         )
         files = save_meeting_record(result, refined, output)
+        from meeting_assistant.semantic_reasoning.service import run_optional
+
+        run_optional(
+            refined, speaker, result, output, environ=values, enabled=args.semantic_reasoning
+        )
     except Exception as exc:
         from meeting_assistant.asr.exceptions import ASRError
         from meeting_assistant.audio.exceptions import AudioIngestionError
+        from meeting_assistant.contextual_asr.exceptions import ContextualASRError
         from meeting_assistant.diarization.exceptions import DiarizationError
         from meeting_assistant.grounding.exceptions import GroundingError
         from meeting_assistant.refinement.exceptions import RefinementError
@@ -138,6 +164,7 @@ def main(argv=None):
                 DiarizationError,
                 GroundingError,
                 RefinementError,
+                ContextualASRError,
             ),
         ):
             print(f"Meeting intelligence failed [{exc.code}]: {exc}", file=sys.stderr)

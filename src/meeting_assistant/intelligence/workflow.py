@@ -37,6 +37,15 @@ def run_upstream(args, values):
         meeting_entries=read_meeting_context(args.meeting_context) if args.meeting_context else (),
     )
     engine = GroundingRetriever(glossary, GroundingConfig.from_env(environ=values))
+    context = getattr(args, "context_pack", None)
+    if getattr(args, "context", None):
+        from meeting_assistant.contextual_asr import read_context
+
+        context = read_context(args.context)
+    if context is not None:
+        from meeting_assistant.contextual_asr.integration import context_retriever
+
+        engine = context_retriever(context, engine)
     # Verify cached GPU/embedding prerequisites before paid speech upload.
     diar_backend.load_model()
     engine.prepare()
@@ -56,9 +65,51 @@ def run_upstream(args, values):
     diarization = diar_backend.diarize(audio.canonical_audio_path)
     speaker = reconcile_transcript(raw, diarization, config=diar_config.reconciliation)
     speaker_files = save_speaker_transcript(speaker, diarization, output)
+    from meeting_assistant.speaker_reliability.service import run_optional
+
+    run_optional(
+        audio.canonical_audio_path,
+        diarization,
+        speaker,
+        output,
+        environ=values,
+        enabled=getattr(args, "speaker_reliability", False),
+    )
     grounding = ground_transcript(speaker, retriever=engine)
     grounding_files = save_grounding(grounding, output)
-    refined = refine_transcript(speaker, grounding, backend=refiner, config=refiner_config)
+    contextual = None
+    if context is not None or getattr(args, "context_asr", False):
+        from meeting_assistant.contextual_asr import (
+            ContextualASRConfig,
+            contextual_retranscribe,
+            save_contextual_asr,
+        )
+
+        contextual_config = ContextualASRConfig.from_env(environ=values)
+        if getattr(args, "context_asr", False):
+            contextual_config = replace(contextual_config, enabled=True)
+        contextual = contextual_retranscribe(
+            audio.canonical_audio_path,
+            speaker,
+            grounding,
+            context=context,
+            config=contextual_config,
+            asr_config=asr_backend.config,
+        )
+    kwargs = {"contextual_asr": contextual} if contextual is not None else {}
+    try:
+        refined = refine_transcript(
+            speaker, grounding, backend=refiner, config=refiner_config, **kwargs
+        )
+    except Exception:
+        if contextual is not None:
+            save_contextual_asr(contextual, output, context=context)
+        raise
+    if contextual is not None:
+        bundle = save_contextual_asr(contextual, output, context=context, refined=refined)
+        print(
+            f"Contextual ASR: {contextual.provider_calls} calls; {contextual.audio_seconds:.3f} s audio; {bundle}"
+        )
     refined_files = save_refined_transcript(refined, output)
     print(f"Canonical WAV: {audio.canonical_audio_path}")
     for label, files in (

@@ -1,4 +1,10 @@
 import type { Download, Job, Raw, Record, Refined, Utterance } from "./types";
+import type {
+  ContextualASRResult,
+  SemanticResult,
+  Sidecar,
+  SpeakerReliabilityResult,
+} from "./diagnostics";
 
 export class APIError extends Error {
   constructor(
@@ -78,4 +84,12 @@ export const api = {
     request<Utterance[]>(`${base(id)}/evidence/${encodeURIComponent(item)}`),
   downloads: (id: string) => request<Download[]>(`${base(id)}/downloads`),
   audio: (id: string) => `${base(id)}/audio`,
+  contextualAsr: (id: string) =>
+    request<Sidecar<ContextualASRResult>>(`${base(id)}/contextual-asr`),
+  speakerReliability: (id: string) =>
+    request<Sidecar<SpeakerReliabilityResult>>(
+      `${base(id)}/speaker-reliability`,
+    ),
+  semanticReasoning: (id: string) =>
+    request<Sidecar<SemanticResult>>(`${base(id)}/semantic-reasoning`),
 };

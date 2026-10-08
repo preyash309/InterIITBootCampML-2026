@@ -48,7 +48,17 @@ class PipelineRunner:
             )
         return self.backends
 
-    def run(self, identifier, source, root, execute):
+    def run(
+        self,
+        identifier,
+        source,
+        root,
+        execute,
+        *,
+        context=None,
+        speaker_reliability=False,
+        semantic_reasoning=False,
+    ):
         from meeting_assistant.asr import transcribe_audio
         from meeting_assistant.asr.serialization import save_transcript
         from meeting_assistant.audio import AudioIngestionConfig, ingest_audio
@@ -97,6 +107,16 @@ class PipelineRunner:
             diar = diarizer.diarize(audio.canonical_audio_path)
             speaker = reconcile_transcript(raw, diar, config=dc.reconciliation)
             files = save_speaker_transcript(speaker, diar, output)
+            from meeting_assistant.speaker_reliability.service import run_optional
+
+            run_optional(
+                audio.canonical_audio_path,
+                diar,
+                speaker,
+                output,
+                environ=self.values,
+                enabled=speaker_reliability,
+            )
             return (diar, speaker), {
                 "diarization_json": files.diarization_path,
                 "speaker_json": files.json_path,
@@ -106,14 +126,43 @@ class PipelineRunner:
         diar, speaker = execute(S.DIARIZING, diarization)
 
         def grounding():
-            result = ground_transcript(speaker, retriever=engine)
+            selected_engine = engine
+            if context is not None:
+                from meeting_assistant.contextual_asr.integration import context_retriever
+
+                selected_engine = context_retriever(context, engine)
+            result = ground_transcript(speaker, retriever=selected_engine)
             files = save_grounding(result, output)
             return result, {"grounding_json": files.json_path, "grounding_txt": files.text_path}
 
         grounded = execute(S.GROUNDING, grounding)
 
         def refinement():
-            result = refine_transcript(speaker, grounded, backend=refiner, config=rc)
+            contextual = None
+            if context is not None:
+                from meeting_assistant.contextual_asr import (
+                    ContextualASRConfig,
+                    contextual_retranscribe,
+                    save_contextual_asr,
+                )
+
+                contextual = contextual_retranscribe(
+                    audio.canonical_audio_path,
+                    speaker,
+                    grounded,
+                    context=context,
+                    config=ContextualASRConfig.from_env(environ=self.values),
+                    asr_config=self.backends[0].config,
+                )
+            kwargs = {"contextual_asr": contextual} if contextual is not None else {}
+            try:
+                result = refine_transcript(speaker, grounded, backend=refiner, config=rc, **kwargs)
+            except Exception:
+                if contextual is not None:
+                    save_contextual_asr(contextual, output, context=context)
+                raise
+            if contextual is not None:
+                save_contextual_asr(contextual, output, context=context, refined=result)
             files = save_refined_transcript(result, output)
             return result, {
                 "refined_json": files.json_path,
@@ -134,6 +183,11 @@ class PipelineRunner:
                 diarization=diar,
             )
             files = save_meeting_record(result, refined, output)
+            from meeting_assistant.semantic_reasoning.service import run_optional
+
+            run_optional(
+                refined, speaker, result, output, environ=self.values, enabled=semantic_reasoning
+            )
             return result, {
                 "meeting_json": files.json_path,
                 "meeting_md": files.markdown_path,
