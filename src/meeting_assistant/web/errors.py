@@ -21,6 +21,10 @@ def pipeline_error(exc, stage):
         message = "This recording is empty, damaged, unsupported, or has no readable audio track."
     elif "rate_limit" in code or getattr(exc, "status_code", None) == 429:
         message = "The transcription or language service quota is temporarily unavailable. Try a new upload later."
+    elif "connection" in code:
+        message = "The speech recognition provider could not be reached. Check the server's internet or proxy connection and try again."
+    elif "timeout" in code:
+        message = "The speech recognition provider timed out. Check the connection and try again."
     elif "authentication" in code or "configuration" in code or "unavailable" in code:
         message = "This stage is not configured or available. Check the server configuration before uploading again."
     elif "model" in code or "device" in code or "memory" in code:

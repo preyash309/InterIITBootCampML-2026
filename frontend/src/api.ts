@@ -30,6 +30,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       response.status,
     );
   }
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
 const base = (id: string) => `/api/meetings/${encodeURIComponent(id)}`;
@@ -76,6 +77,7 @@ export const api = {
     });
   },
   history: () => request<Job[]>("/api/meetings"),
+  removeFailed: (id: string) => request<void>(`${base(id)}`, { method: "DELETE" }),
   status: (id: string) => request<Job>(`${base(id)}/status`),
   record: (id: string) => request<Record>(`${base(id)}/record`),
   refined: (id: string) => request<Refined>(`${base(id)}/transcript/refined`),

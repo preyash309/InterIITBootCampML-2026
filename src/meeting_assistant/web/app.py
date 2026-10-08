@@ -11,7 +11,7 @@ from uuid import uuid4
 from fastapi import APIRouter, FastAPI, File, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.routing import APIRoute
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException
@@ -110,7 +110,7 @@ class UploadOriginGuard:
         self.app, self.allowed = app, frozenset(allowed)
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] == "http" and scope["method"] == "POST":
+        if scope["type"] == "http" and scope["method"] in {"POST", "DELETE"}:
             origin = dict(scope["headers"]).get(b"origin")
             if origin is not None and origin.decode("latin-1") not in self.allowed:
                 await JSONResponse(
@@ -163,7 +163,7 @@ def create_app(config=None, *, runner=None, values=None):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(config.allowed_origins),
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "DELETE"],
         allow_headers=["Content-Type", "Range"],
         expose_headers=["Content-Range", "Content-Disposition"],
         allow_credentials=False,
@@ -260,6 +260,11 @@ def create_app(config=None, *, runner=None, values=None):
     @app.get("/api/meetings", response_model=list[JobResponse])
     def history():
         return [job_response(j) for j in store.list()]
+
+    @app.delete("/api/meetings/{identifier}", status_code=204)
+    def delete_failed(identifier: str):
+        store.delete_failed(identifier)
+        return Response(status_code=204)
 
     @app.get("/api/meetings/{identifier}", response_model=JobResponse)
     @app.get("/api/meetings/{identifier}/status", response_model=JobResponse)

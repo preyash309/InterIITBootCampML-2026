@@ -417,11 +417,34 @@
     text-align: left;
     border-bottom: 1px solid var(--line);
   }
+  .history-open {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
   .history-item:last-child {
     border-bottom: 0;
   }
   .history-item:hover {
     background: #f9fbf6;
+  }
+  .history-remove {
+    flex: 0 0 auto;
+    border: 1px solid #efd9d0;
+    border-radius: 5px;
+    color: #a36b58;
+    background: #fffaf7;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+  .history-remove:hover:not(:disabled) {
+    background: #faece6;
   }
   .history-icon {
     display: flex;
@@ -429,16 +452,16 @@
     background: #f0f4ec;
     border-radius: 8px;
   }
-  .history-item > div {
+  .history-open > div {
     min-width: 0;
     flex: 1;
   }
-  .history-item strong {
+  .history-open strong {
     display: block;
     font-size: 14px;
     overflow-wrap: anywhere;
   }
-  .history-item > div > span {
+  .history-open > div > span {
     display: block;
     font-size: 11px;
     color: var(--muted);
@@ -1207,7 +1230,7 @@
   .raw-details,
   .overview-stats span,
   .action-fields small,
-  .history-item > div > span,
+  .history-open > div > span,
   .stages li > div > span,
   .stages .pending strong,
   .player-time,
@@ -1383,14 +1406,20 @@
       flex-direction: column;
       gap: 4px;
     }
-    .history-item > svg {
+    .history-open > svg {
       display: none;
     }
-    .history-item > div > span {
+    .history-open > div > span {
       font-size: 9px;
     }
-    .history-item strong {
+    .history-open strong {
       font-size: 12px;
+    }
+    .history-open {
+      gap: 12px;
+    }
+    .history-remove {
+      padding: 6px 8px;
     }
     .meeting-heading {
       gap: 10px;

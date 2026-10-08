@@ -81,6 +81,27 @@ class StoreTests(unittest.TestCase):
             self.store.artifact(self.identifier, "raw_json")
         self.assertEqual(error.exception.status, 409)
 
+    def test_delete_failed_removes_record_and_workspace(self):
+        self.job.status = "FAILED"
+        self.store.update(self.job)
+        workspace = self.root / self.identifier
+        workspace.mkdir()
+        (workspace / "partial.txt").write_text("partial", encoding="utf-8")
+
+        self.store.delete_failed(self.identifier)
+
+        with self.assertRaises(WebError) as error:
+            self.store.get(self.identifier)
+        self.assertEqual(error.exception.status, 404)
+        self.assertFalse(workspace.exists())
+
+    def test_delete_completed_is_rejected(self):
+        self.job.status = "COMPLETED"
+        self.store.update(self.job)
+        with self.assertRaises(WebError) as error:
+            self.store.delete_failed(self.identifier)
+        self.assertEqual(error.exception.status, 409)
+
     def test_worker_rejects_missing_stages(self):
         directory = self.root / self.identifier / "upload"
         directory.mkdir(parents=True)

@@ -243,6 +243,22 @@ class APITests(unittest.TestCase):
         )
         self.assertNotIn("meeting_json", self.app.state.store.artifacts(identifier))
 
+    def test_failed_job_can_be_removed(self):
+        self.runner.fail = STAGES[1]
+        identifier = self.upload()
+        self.assertEqual(self.finish(identifier)["status"], "FAILED")
+
+        response = self.client.delete(f"/api/meetings/{identifier}")
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(self.client.get(f"/api/meetings/{identifier}").status_code, 404)
+        self.assertNotIn(identifier, [job.id for job in self.app.state.store.list()])
+        self.assertFalse((self.root / identifier).exists())
+
+    def test_completed_job_cannot_be_removed(self):
+        identifier = self.completed()
+        response = self.client.delete(f"/api/meetings/{identifier}")
+        self.assertEqual(response.status_code, 409)
+
     def test_cors_allowed_and_denied(self):
         allowed = self.client.get("/api/meetings", headers={"Origin": "http://localhost:5173"})
         self.assertEqual(allowed.headers["Access-Control-Allow-Origin"], "http://localhost:5173")

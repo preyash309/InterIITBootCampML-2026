@@ -1,5 +1,6 @@
 """Small transactional SQLite store with independent connections per operation."""
 
+import shutil
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -68,6 +69,25 @@ class JobStore:
         job.updated_at = now()
         with self.connect() as db:
             db.execute("UPDATE meetings SET data=? WHERE id=?", (job.model_dump_json(), job.id))
+
+    def delete_failed(self, identifier):
+        """Remove one terminal failed job and its private workspace."""
+        identifier = job_id(identifier)
+        with self.connect() as db:
+            row = db.execute(
+                "SELECT data FROM meetings WHERE id=?", (identifier,)
+            ).fetchone()
+            if row is None:
+                raise WebError("meeting_not_found", "Meeting not found.", 404)
+            job = MeetingJob.model_validate_json(row[0])
+            if job.status != "FAILED":
+                raise WebError("meeting_not_failed", "Only failed meetings can be removed.", 409)
+            db.execute("DELETE FROM artifacts WHERE meeting_id=?", (identifier,))
+            db.execute("DELETE FROM meetings WHERE id=?", (identifier,))
+
+        workspace = safe_path(self.root, identifier, must_exist=False)
+        if workspace.exists():
+            shutil.rmtree(workspace)
 
     @staticmethod
     def _list(db):

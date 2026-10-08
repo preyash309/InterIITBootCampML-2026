@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { api } from "./api";
 import type { Job } from "./types";
@@ -278,7 +278,8 @@ function Upload({ navigate }: { navigate: (p: string) => void }) {
 function History({ navigate }: { navigate: (p: string) => void }) {
   const [jobs, setJobs] = useState<Job[] | null>(null),
     [error, setError] = useState(""),
-    [attempt, setAttempt] = useState(0);
+    [attempt, setAttempt] = useState(0),
+    [removing, setRemoving] = useState("");
   useEffect(() => {
     let live = true;
     setError("");
@@ -295,6 +296,20 @@ function History({ navigate }: { navigate: (p: string) => void }) {
       live = false;
     };
   }, [attempt]);
+  async function removeFailed(event: MouseEvent, id: string) {
+    event.stopPropagation();
+    if (removing) return;
+    setRemoving(id);
+    setError("");
+    try {
+      await api.removeFailed(id);
+      setJobs((current) => current?.filter((job) => job.id !== id) ?? current);
+    } catch (e) {
+      setError(message(e));
+    } finally {
+      setRemoving("");
+    }
+  }
   return (
     <main className="history-page">
       <div className="eyebrow">YOUR WORKSPACE</div>
@@ -324,30 +339,44 @@ function History({ navigate }: { navigate: (p: string) => void }) {
       ) : (
         <div className="history-list">
           {jobs.map((j) => (
-            <button
+            <div
               key={j.id}
-              onClick={() => navigate(j.workspace_url)}
               className="history-item"
             >
-              <span className="history-icon">
-                <Icon name="file" />
-              </span>
-              <div>
-                <strong>{j.original_filename}</strong>
-                <span>
-                  {new Date(j.created_at).toLocaleString()} ·{" "}
-                  {(j.size_bytes / 1024 / 1024).toFixed(1)} MB
+              <button
+                className="history-open"
+                onClick={() => navigate(j.workspace_url)}
+              >
+                <span className="history-icon">
+                  <Icon name="file" />
                 </span>
-              </div>
-              <span className={`status-pill ${j.status.toLowerCase()}`}>
-                {j.status === "COMPLETED"
-                  ? "Ready"
-                  : j.status === "FAILED"
-                    ? `Failed · ${stageLabels[j.current_stage ?? ""] ?? "Processing"}`
-                    : `${j.completed_stages}/6 stages`}
-              </span>
-              <Icon name="arrow" />
-            </button>
+                <div>
+                  <strong>{j.original_filename}</strong>
+                  <span>
+                    {new Date(j.created_at).toLocaleString()} ·{" "}
+                    {(j.size_bytes / 1024 / 1024).toFixed(1)} MB
+                  </span>
+                </div>
+                <span className={`status-pill ${j.status.toLowerCase()}`}>
+                  {j.status === "COMPLETED"
+                    ? "Ready"
+                    : j.status === "FAILED"
+                      ? `Failed · ${stageLabels[j.current_stage ?? ""] ?? "Processing"}`
+                      : `${j.completed_stages}/6 stages`}
+                </span>
+                <Icon name="arrow" />
+              </button>
+              {j.status === "FAILED" && (
+                <button
+                  className="history-remove"
+                  onClick={(event) => removeFailed(event, j.id)}
+                  disabled={removing === j.id}
+                  aria-label={`Remove failed meeting ${j.original_filename}`}
+                >
+                  {removing === j.id ? "Removing…" : "Remove"}
+                </button>
+              )}
+            </div>
           ))}
         </div>
       )}
